@@ -1,0 +1,79 @@
+name: "Root.io Image Remediation"
+description: "Runs the Root.io remediation client to analyze and remediate container images."
+author: "Root.io"
+
+inputs:
+  as:
+    description: "The name that will show when the job runs."
+    required: false
+    default: "remediate"
+  stage:
+    description: "The stage in the CI/CD pipeline where the remediation process should be executed."
+    required: false
+    default: "remediate"
+  when:
+    description: "The condition that triggers the remediation process."
+    required: false
+    default: "manual"
+  rules:
+    description: "The rules that define when the remediation process should be executed."
+    required: false
+    default: ''[{ "if": "github.ref_type == 'tag'", "when": "always" }]''
+  image_reference:
+    description: "The image reference to remediate in the format of 'registry/image:tag'."
+    required: false
+    default: "ghcr.io/${{ github.repository }}:${{ github.ref_name }}"
+  org_id:
+    description: "The organization ID of the organization where the image is stored."
+    required: true
+  api_token:
+    description: "The API token used to authenticate with the Root.io API."
+    required: true
+  registry_credentials_id:
+    description: "The ID of the registry credentials used to pull the image."
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Docker
+      uses: docker/setup-buildx-action@v2
+
+    - name: Determine Execution Conditions
+      id: condition_check
+      shell: bash
+      run: |
+        if [[ "${{ inputs.when }}" == "manual" ]]; then
+          echo "Skipping remediation as it's set to manual."
+          exit 0
+        fi
+
+        # Handle rules (converting JSON-like input to actual condition)
+        echo "Checking rules..."
+        if [[ "${{ inputs.rules }}" == *"github.ref_type == 'tag'"* && "${{ github.ref_type }}" != "tag" ]]; then
+          echo "Skipping remediation - does not meet tagging rule."
+          exit 0
+        fi
+
+    - name: Run Remediation Client
+      shell: bash
+      run: |
+        echo "Running remediation in stage: ${{ inputs.stage }} with name: ${{ inputs.as }}"
+
+        docker run --rm \
+          -v ${{ github.workspace }}:/output \
+          public.ecr.aws/rootio/remediation-client:latest \
+          ${{ inputs.org_id }} \
+          ${{ inputs.api_token }} \
+          ${{ inputs.registry_credentials_id }} \
+          ${{ inputs.image_reference }} \
+          /output
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: remediation-results
+        path: |
+          image_remediation.json
+          scan_summary.json
+        if-no-files-found: ignore
