@@ -2,6 +2,10 @@
 name: "Root.io Image Remediation"
 description: "Runs the Root.io remediation client to analyze and remediate container images."
 author: "Root.io"
+branding:
+  icon: "shield"
+  color: "green"
+
 
 inputs:
   as:
