@@ -5,7 +5,6 @@ on:
   push:
     branches:
       - main
-  push:
     tags:
       - "v*.*.*"  # Triggers when a new version tag (e.g., v1.0.0) is pushed.
 
