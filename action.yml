@@ -1,3 +1,4 @@
+---
 name: "Root.io Image Remediation"
 description: "Runs the Root.io remediation client to analyze and remediate container images."
 author: "Root.io"
@@ -18,7 +19,7 @@ inputs:
   rules:
     description: "The rules that define when the remediation process should be executed."
     required: false
-    default: ''[{ "if": "github.ref_type == 'tag'", "when": "always" }]''
+    default: '[{ "if": "github.ref_type == \"tag\"", "when": "always" }]'
   image_reference:
     description: "The image reference to remediate in the format of 'registry/image:tag'."
     required: false
