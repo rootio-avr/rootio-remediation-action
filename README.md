@@ -60,7 +60,7 @@ jobs:
            uses: actions/checkout@v4
 
          - name: Run Root.io Remediation
-           uses: your-org/rootio-remediation-action@v1
+           uses: rootio-avr/rootio-remediation-action@v1
            with:
               stage: remediate
               when: always
