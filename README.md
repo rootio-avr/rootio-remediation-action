@@ -60,16 +60,15 @@ jobs:
            uses: actions/checkout@v4
 
          - name: Run Root.io Remediation
-           uses: rootio-avr/rootio-remediation-action@v1
+           uses: rootio-avr/rootio-remediation-action@latest
            with:
               stage: remediate
               when: always
-              rules: '[{ "if": "github.ref_type == \'tag\'", "when": "always" }]'
+              rules: '[{ "if": "github.ref_type == \"tag\"", "when": "always" }]'
               org_id: ${{ secrets.ROOTIO_ORG_ID }}
               api_token: ${{ secrets.ROOTIO_API_TOKEN }}
               registry_credentials_id: ${{ secrets.ROOTIO_REGISTRY_CREDENTIALS }}
               image_reference: "ghcr.io/${{ github.repository }}:${{ github.ref_name }}"
-
 ```
 
 ## :white_check_mark: Project status
