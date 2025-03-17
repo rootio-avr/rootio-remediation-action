@@ -65,9 +65,9 @@ jobs:
               stage: remediate
               when: always
               rules: '[{ "if": "github.ref_type == \"tag\"", "when": "always" }]'
-              org_id: ${{ secrets.ROOTIO_ORG_ID }}
+              org_id: ${{ env.ROOTIO_ORG_ID }}
               api_token: ${{ secrets.ROOTIO_API_TOKEN }}
-              registry_credentials_id: ${{ secrets.ROOTIO_REGISTRY_CREDENTIALS }}
+              registry_credentials_id: ${{ env.ROOTIO_REGISTRY_CREDENTIALS }}
               image_reference: "ghcr.io/${{ github.repository }}:${{ github.ref_name }}"
 ```
 
