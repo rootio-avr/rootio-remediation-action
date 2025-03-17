@@ -32,19 +32,12 @@ jobs:
       - name: Run yamllint
         uses: ibiqlik/action-yamllint@v3
         with:
-          config_file: .yamllint.yml  # Optional custom linting rules
+          config_file: .yamllint.yml
 
   test-action:
     name: Test GitHub Action
     runs-on: ubuntu-latest
-    needs: [validate-action, validate-yaml]  # Ensures validation passes first
-
-    env:
-      ORG_ID: ${{ secrets.ROOTIO_ORG_ID }}
-      API_TOKEN: ${{ secrets.ROOTIO_API_TOKEN }}
-      REGISTRY_CREDENTIALS_ID: ${{ secrets.ROOTIO_REGISTRY_CREDENTIALS }}
-      IMAGE_REFERENCE: ${{ secrets.ROOTIO_IMAGE_REFERENCE }}
-
+    needs: [validate-action, validate-yaml]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -52,10 +45,10 @@ jobs:
       - name: Run Root.io Remediation Action
         uses: rootio-avr/rootio-remediation-action@latest
         with:
-          org_id: ${{ env.ORG_ID }}
-          api_token: ${{ env.API_TOKEN }}
-          registry_credentials_id: ${{ env.REGISTRY_CREDENTIALS_ID }}
-          image_reference: ${{ env.IMAGE_REFERENCE }}
+          org_id: ${{ secrets.ROOTIO_ORG_ID }}
+          api_token: ${{ secrets.ROOTIO_API_TOKEN }}
+          registry_credentials_id: ${{ secrets.ROOTIO_REGISTRY_CREDENTIALS }}
+          image_reference: ${{ secrets.ROOTIO_IMAGE_REFERENCE }}
 
   release:
     name: Publish to GitHub Marketplace

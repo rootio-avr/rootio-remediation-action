@@ -8,16 +8,13 @@ It serves, as a stage in the CI/CD pipeline, to remediate the vulnerabilities fo
 
 ## :tickets: Component inputs
 
-| Name                    | Description                                                                      | Required | Default                                               |
-|------------------------|--------------------------------------------------------------------------------|----------|------------------------------------------------------|
-| `as`                   | The name that will be displayed when the job runs                              | ❌ No     | `remediate`                                          |
-| `stage`                | The CI/CD pipeline stage where the remediation process should be executed     | ❌ No     | `remediate`                                          |
-| `when`                 | The condition that triggers the remediation process                           | ❌ No     | `manual`                                             |
-| `rules`                | The rules that define when remediation should be executed                     | ❌ No     | `[ { "if": "github.ref_type == 'tag'", "when": "always" } ]` |
+| Name                    | Description                                                                      | Required | Default                                                   |
+|------------------------|--------------------------------------------------------------------------------|----------|-----------------------------------------------------------|
 | `image_reference`      | The reference to the image that should be scanned                             | ❌ No     | `ghcr.io/${{ github.repository }}:${{ github.ref_name }}` |
-| `org_id`               | The organization ID where the image is stored                                 | ✅ Yes    | `-`                                                  |
-| `api_token`            | The API token for authenticating with Root.io                                 | ✅ Yes    | `-`                                                  |
-| `registry_credentials_id` | The ID of the registry credentials used to pull the image               | ✅ Yes    | `-`                                                  |
+| `org_id`               | The organization ID where the image is stored                                 | ✅ Yes    | `-`                                                       |
+| `api_token`            | The API token for authenticating with Root.io                                 | ✅ Yes    | `-`                                                       |
+| `registry_credentials_id` | The ID of the registry credentials used to pull the image               | ✅ Yes    | `-`                                                       |
+| `output_path`          | The path where remediation artifacts will be stored                          | ❌ No     | `${{ github.workspace }}/remediation-output`              |
 
 ## :hammer_and_wrench: Prerequisites
 
@@ -48,7 +45,10 @@ It serves, as a stage in the CI/CD pipeline, to remediate the vulnerabilities fo
 name: Remediation Pipeline
 
 on:
+   pull_request:
    push:
+      branches:
+         - main
       tags:
          - "*"
 
@@ -60,15 +60,14 @@ jobs:
            uses: actions/checkout@v4
 
          - name: Run Root.io Remediation
+           if: ${{ github.event_name == 'push' || startsWith(github.ref, 'refs/tags/') }}
            uses: rootio-avr/rootio-remediation-action@latest
            with:
-              stage: remediate
-              when: always
-              rules: '[{ "if": "github.ref_type == \"tag\"", "when": "always" }]'
               org_id: ${{ env.ROOTIO_ORG_ID }}
               api_token: ${{ secrets.ROOTIO_API_TOKEN }}
               registry_credentials_id: ${{ env.ROOTIO_REGISTRY_CREDENTIALS }}
               image_reference: "ghcr.io/${{ github.repository }}:${{ github.ref_name }}"
+              output_path: "${{ github.workspace }}/custom-output-path"
 ```
 
 ## :white_check_mark: Project status
