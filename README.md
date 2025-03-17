@@ -4,7 +4,8 @@
 
 The project contains only one component - _Remediate_.\
 _Remediate_ is a component that provides integration with the remediation process of [Root.io](http://root.io).\
-It serves, as a stage in the CI/CD pipeline, to remediate the vulnerabilities found in the newly built image.
+It serves, as a stage in the CI/CD pipeline, to remediate the vulnerabilities found in the newly built image.\
+The action is using the [remediation client public image](https://gallery.ecr.aws/rootio/remediation-client). An HTTP client that is used to trigger the remediation process.
 
 ## :tickets: Component inputs
 
