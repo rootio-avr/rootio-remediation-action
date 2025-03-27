@@ -9,8 +9,7 @@ branding:
 inputs:
   image_reference:
     description: "The image reference to remediate in the format of 'registry/image:tag'."
-    required: false
-    default: "ghcr.io/${{ github.repository }}:${{ github.ref_name }}"
+    required: true
   org_id:
     description: "The organization ID of the organization where the image is stored."
     required: true
