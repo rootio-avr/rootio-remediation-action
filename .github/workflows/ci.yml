@@ -43,7 +43,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Root.io Remediation Action
-        uses: rootio-avr/rootio-remediation-action@latest
+        uses: rootio-avr/rootio-remediation-action@${{ github.sha }}
         with:
           org_id: ${{ secrets.ROOTIO_ORG_ID }}
           api_token: ${{ secrets.ROOTIO_API_TOKEN }}
