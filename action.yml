@@ -50,6 +50,6 @@ runs:
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: remediation-results
+        name: remediation-results-${{ github.job }}-${{ github.run_id }}
         path: ${{ inputs.output_path }}/*.json
         if-no-files-found: error
