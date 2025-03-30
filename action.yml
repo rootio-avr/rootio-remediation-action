@@ -50,7 +50,7 @@ runs:
     - name: Generate UUID
       id: uuid
       shell: bash
-      run: echo "id=$(uuidgen | cut -c1-8)" >> $GITHUB_ENV
+      run: echo "id=$(uuidgen | cut -c1-8)" >> $GITHUB_OUTPUT
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
