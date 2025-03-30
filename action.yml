@@ -47,9 +47,14 @@ runs:
           ${{ inputs.image_reference }} \
           /output
 
+    - name: Generate UUID
+      id: uuid
+      shell: bash
+      run: echo "id=$(uuidgen | cut -c1-8)" >> $GITHUB_ENV
+
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: remediation-results-${{ github.job }}-${{ github.run_id }}
+        name: remediation-results-${{ github.run_id }}-${{ steps.uuid.outputs.id }}
         path: ${{ inputs.output_path }}/*.json
         if-no-files-found: error
