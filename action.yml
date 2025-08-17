@@ -71,32 +71,32 @@ runs:
     - name: Parse results and set outputs
       shell: bash
       run: |
+        # Initialize variables
+        process_status=""
+        id=""
+        result_image=""
+        remediation_status=""
+        remediation_decision=""
+        remediation_error=""
+        
         # Find the actual JSON files (they have prefixed names)
         scan_summary_file=$(find "${{ inputs.output_path }}" -name "*_scan_summary.json" | head -1)
         image_remediation_file=$(find "${{ inputs.output_path }}" -name "*_image_remediation.json" | head -1)
         
-        echo "Debug: scan_summary_file = ${scan_summary_file}"
-        echo "Debug: image_remediation_file = ${image_remediation_file}"
-        ls -la "${{ inputs.output_path }}"
-        
         # Parse scan_summary.json (object format)
         if [ -f "${scan_summary_file}" ]; then
-          echo "Debug: parsing scan_summary file"
           process_status=$(jq -r '.process_status // ""' "${scan_summary_file}")
           id=$(jq -r '.id // ""' "${scan_summary_file}")
-          echo "Debug: process_status = ${process_status}, id = ${id}"
         fi
         
         if [ -f "${image_remediation_file}" ] && [ $(jq 'length' "${image_remediation_file}") -gt 0 ]; then
-          echo "Debug: parsing image_remediation file"
           result_image=$(jq -r '.[0].user_instrumented_image // ""' "${image_remediation_file}")
           remediation_status=$(jq -r '.[0].status // ""' "${image_remediation_file}")
           remediation_decision=$(jq -r '.[0].decision // ""' "${image_remediation_file}")
           remediation_error=$(jq -r '.[0].error // ""' "${image_remediation_file}")
-          echo "Debug: result_image = ${result_image}"
         fi
         
-        # Set all outputs (will be empty if not set above)
+        # Set all outputs
         echo "process_status=${process_status}" >> $GITHUB_OUTPUT
         echo "id=${id}" >> $GITHUB_OUTPUT
         echo "result_image=${result_image}" >> $GITHUB_OUTPUT
