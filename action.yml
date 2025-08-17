@@ -75,39 +75,31 @@ runs:
         scan_summary_file=$(find "${{ inputs.output_path }}" -name "*_scan_summary.json" | head -1)
         image_remediation_file=$(find "${{ inputs.output_path }}" -name "*_image_remediation.json" | head -1)
         
-        # Parse scan_summary.json for process_status and id
+        # Parse scan_summary.json (object format)
         if [ -f "${scan_summary_file}" ]; then
-          process_status=$(jq -r '.[0].process_status // ""' "${scan_summary_file}")
-          id=$(jq -r '.[0].id // ""' "${scan_summary_file}")
-          echo "process_status=${process_status}" >> $GITHUB_OUTPUT
-          echo "id=${id}" >> $GITHUB_OUTPUT
-        else
-          echo "process_status=" >> $GITHUB_OUTPUT
-          echo "id=" >> $GITHUB_OUTPUT
+          process_status=$(jq -r '.process_status // ""' "${scan_summary_file}")
+          id=$(jq -r '.id // ""' "${scan_summary_file}")
         fi
         
-        # Parse image_remediation.json for user_instrumented_image, status, decision, and error
-        if [ -f "${image_remediation_file}" ]; then
+        if [ -f "${image_remediation_file}" ] && [ $(jq 'length' "${image_remediation_file}") -gt 0 ]; then
           result_image=$(jq -r '.[0].user_instrumented_image // ""' "${image_remediation_file}")
           remediation_status=$(jq -r '.[0].status // ""' "${image_remediation_file}")
           remediation_decision=$(jq -r '.[0].decision // ""' "${image_remediation_file}")
           remediation_error=$(jq -r '.[0].error // ""' "${image_remediation_file}")
-          echo "result_image=${result_image}" >> $GITHUB_OUTPUT
-          echo "remediation_status=${remediation_status}" >> $GITHUB_OUTPUT
-          echo "remediation_decision=${remediation_decision}" >> $GITHUB_OUTPUT
-          echo "remediation_error=${remediation_error}" >> $GITHUB_OUTPUT
-          
-          # Set image_created based on result_image
-          if [ -n "${result_image}" ] && [ "${result_image}" != "null" ] && [ "${result_image}" != "" ]; then
-            echo "image_created=true" >> $GITHUB_OUTPUT
-          else
-            echo "image_created=false" >> $GITHUB_OUTPUT
-          fi
+        fi
+        
+        # Set all outputs (will be empty if not set above)
+        echo "process_status=${process_status}" >> $GITHUB_OUTPUT
+        echo "id=${id}" >> $GITHUB_OUTPUT
+        echo "result_image=${result_image}" >> $GITHUB_OUTPUT
+        echo "remediation_status=${remediation_status}" >> $GITHUB_OUTPUT
+        echo "remediation_decision=${remediation_decision}" >> $GITHUB_OUTPUT
+        echo "remediation_error=${remediation_error}" >> $GITHUB_OUTPUT
+        
+        # Set image_created based on result_image
+        if [ -n "${result_image}" ] && [ "${result_image}" != "null" ] && [ "${result_image}" != "" ]; then
+          echo "image_created=true" >> $GITHUB_OUTPUT
         else
-          echo "result_image=" >> $GITHUB_OUTPUT
-          echo "remediation_status=" >> $GITHUB_OUTPUT
-          echo "remediation_decision=" >> $GITHUB_OUTPUT
-          echo "remediation_error=" >> $GITHUB_OUTPUT
           echo "image_created=false" >> $GITHUB_OUTPUT
         fi
 
