@@ -63,19 +63,34 @@ jobs:
           echo "remediation_error: '${{ steps.remediation.outputs.remediation_error }}'"
           echo "image_created: '${{ steps.remediation.outputs.image_created }}'"
           
-          # Verify that critical outputs exist (not empty)
-          if [ -z "${{ steps.remediation.outputs.process_status }}" ]; then
-            echo "ERROR: process_status is empty"
+          # Verify outputs have expected values
+          if [ "${{ steps.remediation.outputs.process_status }}" != "success" ]; then
+            echo "ERROR: process_status should be 'success', got '${{ steps.remediation.outputs.process_status }}'"
             exit 1
           fi
           
-          if [ -z "${{ steps.remediation.outputs.id }}" ]; then
-            echo "ERROR: id is empty"
+          if [ -z "${{ steps.remediation.outputs.id }}" ] || [[ ! "${{ steps.remediation.outputs.id }}" =~ ^scn_[a-f0-9]{32}$ ]]; then
+            echo "ERROR: id should match pattern 'scn_[32 hex chars]', got '${{ steps.remediation.outputs.id }}'"
             exit 1
           fi
           
-          if [ "${{ steps.remediation.outputs.image_created }}" != "true" ] && [ "${{ steps.remediation.outputs.image_created }}" != "false" ]; then
-            echo "ERROR: image_created must be 'true' or 'false'"
+          if [ "${{ steps.remediation.outputs.remediation_status }}" != "image_remediation_status_success" ]; then
+            echo "ERROR: remediation_status should be 'image_remediation_status_success', got '${{ steps.remediation.outputs.remediation_status }}'"
+            exit 1
+          fi
+          
+          if [ "${{ steps.remediation.outputs.remediation_decision }}" != "image_remediation_decision_patch" ]; then
+            echo "ERROR: remediation_decision should be 'image_remediation_decision_patch', got '${{ steps.remediation.outputs.remediation_decision }}'"
+            exit 1
+          fi
+          
+          if [ "${{ steps.remediation.outputs.result_image }}" != "***_rootio" ]; then
+            echo "ERROR: result_image should be '***_rootio', got '${{ steps.remediation.outputs.result_image }}'"
+            exit 1
+          fi
+          
+          if [ "${{ steps.remediation.outputs.image_created }}" != "true" ]; then
+            echo "ERROR: image_created should be 'true', got '${{ steps.remediation.outputs.image_created }}'"
             exit 1
           fi
           
