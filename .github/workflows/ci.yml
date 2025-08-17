@@ -112,8 +112,7 @@ jobs:
           tag_name: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
           body: |
-            ## Changes in this release
-            - [ ] Add release notes manually or automate them.
+            This is a release of the Root.io Remediation Action.
           draft: false
           prerelease: false
         env:
