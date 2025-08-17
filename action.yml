@@ -77,8 +77,8 @@ runs:
         
         # Parse scan_summary.json for process_status and id
         if [ -f "${scan_summary_file}" ]; then
-          process_status=$(jq -r '.process_status // ""' "${scan_summary_file}")
-          id=$(jq -r '.id // ""' "${scan_summary_file}")
+          process_status=$(jq -r '.[0].process_status // ""' "${scan_summary_file}")
+          id=$(jq -r '.[0].id // ""' "${scan_summary_file}")
           echo "process_status=${process_status}" >> $GITHUB_OUTPUT
           echo "id=${id}" >> $GITHUB_OUTPUT
         else
@@ -88,10 +88,10 @@ runs:
         
         # Parse image_remediation.json for user_instrumented_image, status, decision, and error
         if [ -f "${image_remediation_file}" ]; then
-          result_image=$(jq -r '.user_instrumented_image // ""' "${image_remediation_file}")
-          remediation_status=$(jq -r '.status // ""' "${image_remediation_file}")
-          remediation_decision=$(jq -r '.decision // ""' "${image_remediation_file}")
-          remediation_error=$(jq -r '.error // ""' "${image_remediation_file}")
+          result_image=$(jq -r '.[0].user_instrumented_image // ""' "${image_remediation_file}")
+          remediation_status=$(jq -r '.[0].status // ""' "${image_remediation_file}")
+          remediation_decision=$(jq -r '.[0].decision // ""' "${image_remediation_file}")
+          remediation_error=$(jq -r '.[0].error // ""' "${image_remediation_file}")
           echo "result_image=${result_image}" >> $GITHUB_OUTPUT
           echo "remediation_status=${remediation_status}" >> $GITHUB_OUTPUT
           echo "remediation_decision=${remediation_decision}" >> $GITHUB_OUTPUT
