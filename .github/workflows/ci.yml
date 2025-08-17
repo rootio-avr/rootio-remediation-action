@@ -43,12 +43,43 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Root.io Remediation Action
+        id: remediation
         uses: ./
         with:
           org_id: ${{ secrets.ROOTIO_ORG_ID }}
           api_token: ${{ secrets.ROOTIO_API_TOKEN }}
           registry_credentials_id: ${{ secrets.ROOTIO_REGISTRY_CREDENTIALS }}
           image_reference: ${{ secrets.ROOTIO_IMAGE_REFERENCE }}
+
+      - name: Test action outputs
+        shell: bash
+        run: |
+          echo "Testing action outputs:"
+          echo "process_status: '${{ steps.remediation.outputs.process_status }}'"
+          echo "result_image: '${{ steps.remediation.outputs.result_image }}'"
+          echo "remediation_status: '${{ steps.remediation.outputs.remediation_status }}'"
+          echo "id: '${{ steps.remediation.outputs.id }}'"
+          echo "remediation_decision: '${{ steps.remediation.outputs.remediation_decision }}'"
+          echo "remediation_error: '${{ steps.remediation.outputs.remediation_error }}'"
+          echo "image_created: '${{ steps.remediation.outputs.image_created }}'"
+          
+          # Verify that critical outputs exist (not empty)
+          if [ -z "${{ steps.remediation.outputs.process_status }}" ]; then
+            echo "ERROR: process_status is empty"
+            exit 1
+          fi
+          
+          if [ -z "${{ steps.remediation.outputs.id }}" ]; then
+            echo "ERROR: id is empty"
+            exit 1
+          fi
+          
+          if [ "${{ steps.remediation.outputs.image_created }}" != "true" ] && [ "${{ steps.remediation.outputs.image_created }}" != "false" ]; then
+            echo "ERROR: image_created must be 'true' or 'false'"
+            exit 1
+          fi
+          
+          echo "All output tests passed!"
 
   release:
     name: Publish to GitHub Marketplace

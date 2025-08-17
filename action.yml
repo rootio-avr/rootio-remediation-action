@@ -24,6 +24,22 @@ inputs:
     required: false
     default: "${{ github.workspace }}/remediation-output"
 
+outputs:
+  process_status:
+    description: "The process status from the scan summary"
+  result_image:
+    description: "The user instrumented image from the remediation result"
+  remediation_status:
+    description: "The status from the image remediation"
+  id:
+    description: "The ID from the scan summary"
+  remediation_decision:
+    description: "The decision from the image remediation"
+  remediation_error:
+    description: "The error from the image remediation"
+  image_created:
+    description: "Boolean indicating if a result image was created"
+
 runs:
   using: "composite"
   steps:
@@ -51,6 +67,50 @@ runs:
       id: uuid
       shell: bash
       run: echo "id=$(uuidgen | cut -c1-8)" >> $GITHUB_OUTPUT
+
+    - name: Parse results and set outputs
+      shell: bash
+      run: |
+        # Parse scan_summary.json for process_status
+        if [ -f "${{ inputs.output_path }}/scan_summary.json" ]; then
+          process_status=$(jq -r '.process_status // ""' "${{ inputs.output_path }}/scan_summary.json")
+          echo "process_status=${process_status}" >> $GITHUB_OUTPUT
+        else
+          echo "process_status=" >> $GITHUB_OUTPUT
+        fi
+        
+        # Parse scan_summary.json for id
+        if [ -f "${{ inputs.output_path }}/scan_summary.json" ]; then
+          id=$(jq -r '.id // ""' "${{ inputs.output_path }}/scan_summary.json")
+          echo "id=${id}" >> $GITHUB_OUTPUT
+        else
+          echo "id=" >> $GITHUB_OUTPUT
+        fi
+        
+        # Parse image_remediation.json for user_instrumented_image, status, decision, and error
+        if [ -f "${{ inputs.output_path }}/image_remediation.json" ]; then
+          result_image=$(jq -r '.user_instrumented_image // ""' "${{ inputs.output_path }}/image_remediation.json")
+          remediation_status=$(jq -r '.status // ""' "${{ inputs.output_path }}/image_remediation.json")
+          remediation_decision=$(jq -r '.decision // ""' "${{ inputs.output_path }}/image_remediation.json")
+          remediation_error=$(jq -r '.error // ""' "${{ inputs.output_path }}/image_remediation.json")
+          echo "result_image=${result_image}" >> $GITHUB_OUTPUT
+          echo "remediation_status=${remediation_status}" >> $GITHUB_OUTPUT
+          echo "remediation_decision=${remediation_decision}" >> $GITHUB_OUTPUT
+          echo "remediation_error=${remediation_error}" >> $GITHUB_OUTPUT
+          
+          # Set image_created based on result_image
+          if [ -n "${result_image}" ] && [ "${result_image}" != "null" ]; then
+            echo "image_created=true" >> $GITHUB_OUTPUT
+          else
+            echo "image_created=false" >> $GITHUB_OUTPUT
+          fi
+        else
+          echo "result_image=" >> $GITHUB_OUTPUT
+          echo "remediation_status=" >> $GITHUB_OUTPUT
+          echo "remediation_decision=" >> $GITHUB_OUTPUT
+          echo "remediation_error=" >> $GITHUB_OUTPUT
+          echo "image_created=false" >> $GITHUB_OUTPUT
+        fi
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
