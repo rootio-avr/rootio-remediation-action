@@ -69,15 +69,12 @@ runs:
       run: echo "id=$(uuidgen | cut -c1-8)" >> $GITHUB_OUTPUT
 
     - name: Parse results and set outputs
+      id: parse_results
       shell: bash
       run: |
-        echo "Starting to parse results..."
-        
         # Find the actual JSON files (they have prefixed names)
         scan_summary_file=$(find "${{ inputs.output_path }}" -name "*_scan_summary.json" | head -1)
         image_remediation_file=$(find "${{ inputs.output_path }}" -name "*_image_remediation.json" | head -1)
-        
-        echo "Found files: ${scan_summary_file} ${image_remediation_file}"
         
         # Initialize and set variables directly to GITHUB_OUTPUT
         process_status=""
@@ -91,7 +88,6 @@ runs:
         if [ -f "${scan_summary_file}" ]; then
           process_status=$(jq -r '.process_status // ""' "${scan_summary_file}")
           id=$(jq -r '.id // ""' "${scan_summary_file}")
-          echo "Parsed from scan_summary: process_status=${process_status}, id=${id}"
         fi
         
         if [ -f "${image_remediation_file}" ] && [ $(jq 'length' "${image_remediation_file}") -gt 0 ]; then
@@ -99,7 +95,6 @@ runs:
           remediation_status=$(jq -r '.[0].status // ""' "${image_remediation_file}")
           remediation_decision=$(jq -r '.[0].decision // ""' "${image_remediation_file}")
           remediation_error=$(jq -r '.[0].error // ""' "${image_remediation_file}")
-          echo "Parsed from image_remediation: result_image=${result_image}"
         fi
         
         # Set all outputs
@@ -117,7 +112,6 @@ runs:
           echo "image_created=false" >> $GITHUB_OUTPUT
         fi
         
-        echo "Finished setting outputs"
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
