@@ -71,35 +71,34 @@ runs:
     - name: Parse results and set outputs
       shell: bash
       run: |
-        # Parse scan_summary.json for process_status
-        if [ -f "${{ inputs.output_path }}/scan_summary.json" ]; then
-          process_status=$(jq -r '.process_status // ""' "${{ inputs.output_path }}/scan_summary.json")
-          echo "process_status=${process_status}" >> $GITHUB_OUTPUT
-        else
-          echo "process_status=" >> $GITHUB_OUTPUT
-        fi
+        # Find the actual JSON files (they have prefixed names)
+        scan_summary_file=$(find "${{ inputs.output_path }}" -name "*_scan_summary.json" | head -1)
+        image_remediation_file=$(find "${{ inputs.output_path }}" -name "*_image_remediation.json" | head -1)
         
-        # Parse scan_summary.json for id
-        if [ -f "${{ inputs.output_path }}/scan_summary.json" ]; then
-          id=$(jq -r '.id // ""' "${{ inputs.output_path }}/scan_summary.json")
+        # Parse scan_summary.json for process_status and id
+        if [ -f "${scan_summary_file}" ]; then
+          process_status=$(jq -r '.process_status // ""' "${scan_summary_file}")
+          id=$(jq -r '.id // ""' "${scan_summary_file}")
+          echo "process_status=${process_status}" >> $GITHUB_OUTPUT
           echo "id=${id}" >> $GITHUB_OUTPUT
         else
+          echo "process_status=" >> $GITHUB_OUTPUT
           echo "id=" >> $GITHUB_OUTPUT
         fi
         
         # Parse image_remediation.json for user_instrumented_image, status, decision, and error
-        if [ -f "${{ inputs.output_path }}/image_remediation.json" ]; then
-          result_image=$(jq -r '.user_instrumented_image // ""' "${{ inputs.output_path }}/image_remediation.json")
-          remediation_status=$(jq -r '.status // ""' "${{ inputs.output_path }}/image_remediation.json")
-          remediation_decision=$(jq -r '.decision // ""' "${{ inputs.output_path }}/image_remediation.json")
-          remediation_error=$(jq -r '.error // ""' "${{ inputs.output_path }}/image_remediation.json")
+        if [ -f "${image_remediation_file}" ]; then
+          result_image=$(jq -r '.user_instrumented_image // ""' "${image_remediation_file}")
+          remediation_status=$(jq -r '.status // ""' "${image_remediation_file}")
+          remediation_decision=$(jq -r '.decision // ""' "${image_remediation_file}")
+          remediation_error=$(jq -r '.error // ""' "${image_remediation_file}")
           echo "result_image=${result_image}" >> $GITHUB_OUTPUT
           echo "remediation_status=${remediation_status}" >> $GITHUB_OUTPUT
           echo "remediation_decision=${remediation_decision}" >> $GITHUB_OUTPUT
           echo "remediation_error=${remediation_error}" >> $GITHUB_OUTPUT
           
           # Set image_created based on result_image
-          if [ -n "${result_image}" ] && [ "${result_image}" != "null" ]; then
+          if [ -n "${result_image}" ] && [ "${result_image}" != "null" ] && [ "${result_image}" != "" ]; then
             echo "image_created=true" >> $GITHUB_OUTPUT
           else
             echo "image_created=false" >> $GITHUB_OUTPUT
