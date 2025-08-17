@@ -4,3 +4,4 @@ rules:
   line-length: disable
   truthy: disable
   indentation: {spaces: 2}
+  trailing-spaces: disable
