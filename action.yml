@@ -27,18 +27,25 @@ inputs:
 outputs:
   process_status:
     description: "The process status from the scan summary"
+    value: ${{ steps.parse_results.outputs.process_status }}
   result_image:
     description: "The user instrumented image from the remediation result"
+    value: ${{ steps.parse_results.outputs.result_image }}
   remediation_status:
     description: "The status from the image remediation"
+    value: ${{ steps.parse_results.outputs.remediation_status }}
   id:
     description: "The ID from the scan summary"
+    value: ${{ steps.parse_results.outputs.id }}
   remediation_decision:
     description: "The decision from the image remediation"
+    value: ${{ steps.parse_results.outputs.remediation_decision }}
   remediation_error:
     description: "The error from the image remediation"
+    value: ${{ steps.parse_results.outputs.remediation_error }}
   image_created:
     description: "Boolean indicating if a result image was created"
+    value: ${{ steps.parse_results.outputs.image_created }}
 
 runs:
   using: "composite"
