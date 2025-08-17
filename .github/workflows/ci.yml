@@ -84,7 +84,7 @@ jobs:
             exit 1
           fi
           
-          if [ "${{ steps.remediation.outputs.result_image }}" != "***_rootio" ]; then
+          if [ "${{ steps.remediation.outputs.result_image }}" != '***_rootio' ]; then
             echo "ERROR: result_image should be '***_rootio', got '${{ steps.remediation.outputs.result_image }}'"
             exit 1
           fi
