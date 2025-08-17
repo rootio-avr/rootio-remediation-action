@@ -23,15 +23,15 @@ An HTTP client that is used to trigger the remediation process.
 
 ## :outbox_tray: Component outputs
 
-| Name                  | Description                                           |
-|-----------------------|-------------------------------------------------------|
-| `process_status`      | The process status from the scan summary              |
-| `result_image`        | The user instrumented image from the remediation     |
-| `remediation_status`  | The status from the image remediation                |
-| `id`                  | The ID from the scan summary                          |
-| `remediation_decision`| The decision from the image remediation              |
-| `remediation_error`   | The error from the image remediation (if any)        |
-| `image_created`       | Boolean indicating if a result image was created     |
+| Name                  | Description                                                                        |
+|-----------------------|------------------------------------------------------------------------------------|
+| `process_status`      | The process status of the whole remediation process                                |
+| `result_image`        | The instrumented image name                                                        |
+| `remediation_status`  | The status of the remediation step                                                 |
+| `id`                  | The ID of the remediatio process, namely the Scan ID                               |
+| `remediation_decision`| The remediation decision indicating the systems decision on proceeding to patching |
+| `remediation_error`   | The error from the remediation step (if any)                                       |
+| `image_created`       | Boolean indicating if a result image was created                                   |
 
 ## :hammer_and_wrench: Prerequisites
 
