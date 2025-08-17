@@ -21,6 +21,18 @@ An HTTP client that is used to trigger the remediation process.
 | `registry_credentials_id` | The ID of the registry credentials used to pull the image | ✅ Yes    | `-`                                          |
 | `output_path`             | The path where remediation artifacts will be stored       | ❌ No     | `${{ github.workspace }}/remediation-output` |
 
+## :outbox_tray: Component outputs
+
+| Name                  | Description                                           |
+|-----------------------|-------------------------------------------------------|
+| `process_status`      | The process status from the scan summary              |
+| `result_image`        | The user instrumented image from the remediation     |
+| `remediation_status`  | The status from the image remediation                |
+| `id`                  | The ID from the scan summary                          |
+| `remediation_decision`| The decision from the image remediation              |
+| `remediation_error`   | The error from the image remediation (if any)        |
+| `image_created`       | Boolean indicating if a result image was created     |
+
 ## :hammer_and_wrench: Prerequisites
 
 <!-- dprint-ignore-start -->
@@ -70,6 +82,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Root.io Remediation
+        id: remediation
         if: ${{ github.event_name == 'push' || startsWith(github.ref, 'refs/tags/') }}
         uses: rootio-avr/rootio-remediation-action@latest
         with:
@@ -78,6 +91,12 @@ jobs:
           registry_credentials_id: ${{ env.ROOTIO_REGISTRY_CREDENTIALS }}
           image_reference: "ghcr.io/${{ github.repository }}:${{ github.ref_name }}"
           output_path: "${{ github.workspace }}/custom-output-path"
+      
+      - name: Use remediation outputs
+        run: |
+          echo "Remediation completed with status: ${{ steps.remediation.outputs.process_status }}"
+          echo "Result image: ${{ steps.remediation.outputs.result_image }}"
+          echo "Image was created: ${{ steps.remediation.outputs.image_created }}"
 ```
 
 ## :white_check_mark: Project status
