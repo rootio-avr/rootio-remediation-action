@@ -19,6 +19,7 @@ An HTTP client that is used to trigger the remediation process.
 | `org_id`                  | The organization ID where the image is stored             | ✅ Yes    | `-`                                          |
 | `api_token`               | The API token for authenticating with Root.io             | ✅ Yes    | `-`                                          |
 | `registry_credentials_id` | The ID of the registry credentials used to pull the image | ✅ Yes    | `-`                                          |
+| `arch`                    | The target architecture for remediation (amd64 or arm64)  | ❌ No     | `amd64`                                      |
 | `output_path`             | The path where remediation artifacts will be stored       | ❌ No     | `${{ github.workspace }}/remediation-output` |
 
 ## :outbox_tray: Component outputs
@@ -90,6 +91,7 @@ jobs:
           api_token: ${{ secrets.ROOTIO_API_TOKEN }}
           registry_credentials_id: ${{ env.ROOTIO_REGISTRY_CREDENTIALS }}
           image_reference: "ghcr.io/${{ github.repository }}:${{ github.ref_name }}"
+          arch: "arm64"  # Optional: specify amd64 or arm64 (default: amd64)
           output_path: "${{ github.workspace }}/custom-output-path"
       
       - name: Use remediation outputs
